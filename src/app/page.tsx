@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { GameState } from '../lib/types';
 import { initialGameState } from '../lib/state-engine';
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 export default function Home() {
   const [apiKey, setApiKey] = useState('');
   const [gameState, setGameState] = useState<GameState>(initialGameState);
@@ -11,8 +13,11 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // 운영 환경에서는 API 키가 없어도 입력을 활성화하고,
+  // 개발 환경에서는 API 키가 입력되어야만 활성화합니다.
+  const isInputDisabled = isLoading || (isDevelopment && !apiKey);
+
   useEffect(() => {
-    // 게임 시작 시 초기 메시지 설정
     setMessages([{ role: 'assistant', content: initialGameState.roomDescription }]);
   }, []);
 
@@ -32,8 +37,8 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          apiKey,
-          userInput: currentInput, // 'input'은 항상 string 타입입니다.
+          apiKey: isDevelopment ? apiKey : '', // 운영에서는 빈 문자열 전송
+          userInput: currentInput,
           currentState: gameState,
         }),
       });
@@ -59,15 +64,17 @@ export default function Home() {
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       <header className="p-4 bg-gray-800 border-b border-gray-700">
         <h1 className="text-xl font-bold">Writer's Study: LLM 방탈출 챗봇</h1>
-        <div className="mt-2">
-            <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="OpenAI API 키를 입력하세요"
-                className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-        </div>
+        {isDevelopment && (
+          <div className="mt-2">
+              <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="OpenAI API 키를 입력하세요 (개발용)"
+                  className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+          </div>
+        )}
       </header>
 
       <main className="flex-1 p-4 overflow-y-auto">
@@ -98,12 +105,12 @@ export default function Home() {
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder="명령어를 입력하세요..."
             className="flex-1 p-2 bg-gray-700 border border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={!apiKey || isLoading}
+            disabled={isInputDisabled}
           />
           <button
             onClick={handleSendMessage}
             className="px-4 py-2 bg-blue-600 rounded-r-md hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
-            disabled={!apiKey || !input.trim() || isLoading}
+            disabled={isInputDisabled || !input.trim()}
           >
             {isLoading ? '생각중...' : '전송'}
           </button>

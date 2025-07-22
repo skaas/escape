@@ -8,10 +8,22 @@ import { updateState, initialGameState } from '@/lib/state-engine';
  */
 export async function POST(req: NextRequest) {
   try {
-    const { apiKey, userInput, currentState }: { apiKey: string, userInput: string | null, currentState: GameState } = await req.json();
+    // 클라이언트로부터 API 키를 받되, 이름을 clientApiKey로 변경하여 혼동을 방지합니다.
+    const { apiKey: clientApiKey, userInput, currentState }: { apiKey: string, userInput: string | null, currentState: GameState } = await req.json();
 
-    if (!apiKey || typeof userInput !== 'string' || !currentState) {
-      return NextResponse.json({ error: 'API 키, 유효한 사용자 입력, 현재 상태가 모두 필요합니다.' }, { status: 400 });
+    // 운영 환경(Vercel)에서는 Vercel에 설정된 환경 변수를 사용하고,
+    // 개발 환경(로컬)에서는 클라이언트에서 보낸 키를 사용합니다.
+    const apiKey = process.env.NODE_ENV === 'production'
+      ? process.env.OPENAI_API_KEY
+      : clientApiKey;
+
+    // 최종적으로 API 키가 있는지 확인합니다.
+    if (!apiKey) {
+      return NextResponse.json({ error: 'OpenAI API 키가 설정되지 않았습니다. 개발 환경에서는 UI에, Vercel 환경에서는 환경 변수에 키를 설정해야 합니다.' }, { status: 400 });
+    }
+
+    if (typeof userInput !== 'string' || !currentState) {
+      return NextResponse.json({ error: '유효한 사용자 입력과 현재 상태가 필요합니다.' }, { status: 400 });
     }
 
     const openai = new OpenAI({ apiKey });

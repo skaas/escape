@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const { apiKey: clientApiKey, userInput, currentState } = await req.json() as RequestBody;
 
     const apiKey = process.env.NODE_ENV === 'production'
-      ? process.env.OPENAI_API_KEY
+      ? process.env.OPENAI_KEY
       : clientApiKey;
 
     if (!apiKey) {

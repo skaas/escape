@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { GameState, Intent, Action } from '@/lib/types';
-import { updateState, initialGameState } from '@/lib/state-engine';
+import { GameState, Intent } from '@/lib/types';
+import { updateState } from '@/lib/state-engine';
+
+interface RequestBody {
+  apiKey: string;
+  userInput: string | null;
+  currentState: GameState;
+}
 
 /**
  * 게임 로직을 처리하는 API 라우트입니다.
  */
 export async function POST(req: NextRequest) {
   try {
-    // 클라이언트로부터 API 키를 받되, 이름을 clientApiKey로 변경하여 혼동을 방지합니다.
-    const { apiKey: clientApiKey, userInput, currentState }: { apiKey: string, userInput: string | null, currentState: GameState } = await req.json();
+    const { apiKey: clientApiKey, userInput, currentState } = await req.json() as RequestBody;
 
-    // 운영 환경(Vercel)에서는 Vercel에 설정된 환경 변수를 사용하고,
-    // 개발 환경(로컬)에서는 클라이언트에서 보낸 키를 사용합니다.
     const apiKey = process.env.NODE_ENV === 'production'
       ? process.env.OPENAI_API_KEY
       : clientApiKey;
 
-    // 최종적으로 API 키가 있는지 확인합니다.
     if (!apiKey) {
-      return NextResponse.json({ error: 'OpenAI API 키가 설정되지 않았습니다. 개발 환경에서는 UI에, Vercel 환경에서는 환경 변수에 키를 설정해야 합니다.' }, { status: 400 });
+      return NextResponse.json({ error: 'OpenAI API 키가 설정되지 않았습니다.' }, { status: 400 });
     }
 
     if (typeof userInput !== 'string' || !currentState) {
@@ -34,10 +36,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ newState, narrative });
 
-  } catch (error: any) {
+  } catch (error: unknown) { // 'any' 대신 'unknown' 사용
     console.error('API Error:', error);
     if (error instanceof OpenAI.APIError) {
         return NextResponse.json({ error: `OpenAI API 오류: ${error.message}` }, { status: error.status });
+    }
+    // instanceof Error로 더 일반적인 에러도 처리
+    if (error instanceof Error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json({ error: '내부 서버 오류가 발생했습니다.' }, { status: 500 });
   }
@@ -84,8 +90,12 @@ async function recognizeIntentWithLLM(openai: OpenAI, userInput: string): Promis
         temperature: 0.1,
     });
     
-    const result = JSON.parse(response.choices[0].message.content);
-    return result as Intent;
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error("LLM's intent recognition response is empty.");
+    }
+    const result: Intent = JSON.parse(content);
+    return result;
 }
 
 

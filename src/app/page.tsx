@@ -6,6 +6,11 @@ import { initialGameState } from '../lib/state-engine';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+interface ApiResponse {
+  newState: GameState;
+  narrative: string;
+}
+
 export default function Home() {
   const [apiKey, setApiKey] = useState('');
   const [gameState, setGameState] = useState<GameState>(initialGameState);
@@ -48,13 +53,17 @@ export default function Home() {
         throw new Error(errorData.error || 'API 호출에 실패했습니다.');
       }
 
-      const { newState, narrative } = await response.json();
+      const { newState, narrative } = await response.json() as ApiResponse;
       
       setGameState(newState);
       setMessages(prev => [...prev, { role: 'assistant', content: narrative }]);
 
-    } catch (error: any) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `오류: ${error.message}` }]);
+    } catch (error: unknown) { // 'any' 대신 'unknown' 사용
+      if (error instanceof Error) {
+        setMessages(prev => [...prev, { role: 'assistant', content: `오류: ${error.message}` }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: `알 수 없는 오류가 발생했습니다.` }]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +72,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-white">
       <header className="p-4 bg-gray-800 border-b border-gray-700">
-        <h1 className="text-xl font-bold">Writer's Study: LLM 방탈출 챗봇</h1>
+        <h1 className="text-xl font-bold">LLM 방탈출 챗봇</h1>
         {isDevelopment && (
           <div className="mt-2">
               <input

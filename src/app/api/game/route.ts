@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { GameState, Intent } from '@/lib/types';
-import { updateState } from '@/lib/state-engine';
+import { updateState, initialGameState } from '@/lib/state-engine';
+import { createHmac } from 'crypto';
 
 interface RequestBody {
   apiKey: string;
   userInput: string | null;
   currentState: GameState;
+  signature: string | null;
+}
+
+const gameStateSecret = process.env.GAME_STATE_SECRET || 'a-secure-secret-for-development';
+
+function signState(state: GameState): string {
+  const hmac = createHmac('sha256', gameStateSecret);
+  // 객체의 키 순서가 달라져도 동일한 문자열이 생성되도록 정렬합니다.
+  const stringifiedState = JSON.stringify(Object.keys(state).sort().reduce(
+    (obj, key) => { 
+      (obj as any)[key] = (state as any)[key]; 
+      return obj;
+    }, 
+    {}
+  ));
+  hmac.update(stringifiedState);
+  return hmac.digest('hex');
 }
 
 /**
@@ -14,7 +32,21 @@ interface RequestBody {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { apiKey: clientApiKey, userInput, currentState } = await req.json() as RequestBody;
+    const { apiKey: clientApiKey, userInput, currentState, signature } = await req.json() as RequestBody;
+
+    // --- 상태 검증 로직 시작 ---
+    const isInitialState = JSON.stringify(currentState) === JSON.stringify(initialGameState);
+
+    if (!isInitialState) {
+      if (!signature) {
+        return NextResponse.json({ error: '유효하지 않은 요청입니다. (서명 누락)' }, { status: 403 });
+      }
+      const expectedSignature = signState(currentState);
+      if (signature !== expectedSignature) {
+        return NextResponse.json({ error: '게임 상태가 변조되었습니다. 해킹 시도가 감지되었습니다.' }, { status: 403 });
+      }
+    }
+    // --- 상태 검증 로직 끝 ---
 
     const apiKey = process.env.NODE_ENV === 'production'
       ? process.env.OPENAI_KEY
@@ -30,11 +62,14 @@ export async function POST(req: NextRequest) {
 
     const openai = new OpenAI({ apiKey });
 
-    const intent = await recognizeIntentWithLLM(openai, userInput, currentState);
-    const newState = updateState(currentState, intent);
+    const baseState = isInitialState ? initialGameState : currentState;
+    const intent = await recognizeIntentWithLLM(openai, userInput, baseState);
+    const newState = updateState(baseState, intent);
     const narrative = await generateNarrativeWithLLM(openai, newState, userInput);
 
-    return NextResponse.json({ newState, narrative });
+    const newSignature = signState(newState);
+
+    return NextResponse.json({ newState, narrative, signature: newSignature });
 
   } catch (error: unknown) { // 'any' 대신 'unknown' 사용
     console.error('API Error:', error);

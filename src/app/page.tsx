@@ -9,6 +9,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 interface ApiResponse {
   newState: GameState;
   narrative: string;
+  signature: string;
 }
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [signature, setSignature] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // 운영 환경에서는 API 키가 없어도 입력을 활성화하고,
@@ -48,6 +50,7 @@ export default function Home() {
           apiKey: isDevelopment ? apiKey : '', // 운영에서는 빈 문자열 전송
           userInput: currentInput,
           currentState: gameState,
+          signature: signature,
         }),
       });
 
@@ -56,9 +59,10 @@ export default function Home() {
         throw new Error(errorData.error || 'API 호출에 실패했습니다.');
       }
 
-      const { newState, narrative } = await response.json() as ApiResponse;
+      const { newState, narrative, signature: newSignature } = await response.json() as ApiResponse;
       
       setGameState(newState);
+      setSignature(newSignature);
 
       // 게임이 종료되었고(isEscaped) 마지막 메시지가 있다면, LLM의 서술 대신 그 메시지를 사용합니다.
       const assistantResponse = newState.isEscaped && newState.lastMessage

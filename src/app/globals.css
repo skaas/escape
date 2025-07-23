@@ -24,3 +24,16 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 768px; /* 데스크탑 최대 너비 (예: md) */
+  margin-left: auto;
+  margin-right: auto;
+}

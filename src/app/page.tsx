@@ -70,61 +70,63 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white">
-      <header className="p-4 bg-gray-800 border-b border-gray-700">
-        <h1 className="text-xl font-bold">LLM 방탈출 챗봇</h1>
-        {isDevelopment && (
-          <div className="mt-2">
-              <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="OpenAI API 키를 입력하세요 (개발용)"
-                  className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-          </div>
-        )}
-      </header>
-
-      <main className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
-          {messages.map((msg, index) => (
-            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-4 py-2 rounded-lg max-w-lg ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
-                {msg.content}
-              </div>
-            </div>
-          ))}
-           {isLoading && (
-            <div className="flex justify-start">
-              <div className="px-4 py-2 rounded-lg max-w-lg bg-gray-700 animate-pulse">
-                ...
-              </div>
+    <div className="bg-gray-900 text-white w-full h-screen">
+      <div className="chat-container flex flex-col h-screen">
+        <header className="p-4 bg-gray-800 border-b border-gray-700">
+          <h1 className="text-xl font-bold">LLM 방탈출 챗봇</h1>
+          {isDevelopment && (
+            <div className="mt-2">
+                <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="OpenAI API 키를 입력하세요 (개발용)"
+                    className="w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
             </div>
           )}
-        </div>
-      </main>
+        </header>
 
-      <footer className="p-4 bg-gray-800 border-t border-gray-700">
-        <div className="flex">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="명령어를 입력하세요..."
-            className="flex-1 p-2 bg-gray-700 border border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            disabled={isInputDisabled}
-          />
-          <button
-            onClick={handleSendMessage}
-            className="px-4 py-2 bg-blue-600 rounded-r-md hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
-            disabled={isInputDisabled || !input.trim()}
-          >
-            {isLoading ? '생각중...' : '전송'}
-          </button>
-        </div>
-      </footer>
+        <main className="flex-1 p-4 overflow-y-auto bg-gray-900">
+          <div className="space-y-4">
+            {messages.map((msg, index) => (
+              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`px-4 py-2 rounded-lg max-w-lg ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+             {isLoading && (
+              <div className="flex justify-start">
+                <div className="px-4 py-2 rounded-lg max-w-lg bg-gray-700 animate-pulse">
+                  ...
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+
+        <footer className="p-4 bg-gray-800 border-t border-gray-700">
+          <div className="flex">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="명령어를 입력하세요..."
+              className="flex-1 p-2 bg-gray-700 border border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isInputDisabled}
+            />
+            <button
+              onClick={handleSendMessage}
+              className="px-4 py-2 bg-blue-600 rounded-r-md hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed"
+              disabled={isInputDisabled || !input.trim()}
+            >
+              {isLoading ? '생각중...' : '전송'}
+            </button>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

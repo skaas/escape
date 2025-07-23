@@ -12,6 +12,29 @@ interface ApiResponse {
   signature: string;
 }
 
+// 텍스트 스트리밍 효과를 위한 컴포넌트
+const StreamingText = ({ text }: { text: string }) => {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    setDisplayedText(''); // 새로운 텍스트가 들어오면 초기화
+    let i = 0;
+    const intervalId = setInterval(() => {
+      if (i < text.length) {
+        setDisplayedText(prev => prev + text.charAt(i));
+        i++;
+      } else {
+        clearInterval(intervalId);
+      }
+    }, 30); // 타이핑 속도 (ms)
+
+    return () => clearInterval(intervalId);
+  }, [text]);
+
+  return <>{displayedText}</>;
+};
+
+
 export default function Home() {
   const [apiKey, setApiKey] = useState('');
   const [gameState, setGameState] = useState<GameState>(initialGameState);
@@ -20,10 +43,16 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [signature, setSignature] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 운영 환경에서는 API 키가 없어도 입력을 활성화하고,
-  // 개발 환경에서는 API 키가 입력되어야만 활성화합니다.
-  // 게임이 끝나도 (isEscaped) 입력을 비활성화합니다.
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const isInputDisabled = isLoading || (isDevelopment && !apiKey) || gameState.isEscaped;
 
   useEffect(() => {
@@ -105,8 +134,12 @@ export default function Home() {
           <div className="space-y-4">
             {messages.map((msg, index) => (
               <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`px-4 py-2 rounded-lg max-w-lg ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
-                  {msg.content}
+                <div className={`px-4 py-2 rounded-lg max-w-lg whitespace-pre-wrap ${msg.role === 'user' ? 'bg-blue-600' : 'bg-gray-700'}`}>
+                  {msg.role === 'assistant' && index === messages.length - 1 ? (
+                    <StreamingText text={msg.content} />
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               </div>
             ))}
@@ -117,6 +150,7 @@ export default function Home() {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </main>
 

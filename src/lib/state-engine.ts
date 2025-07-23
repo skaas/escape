@@ -1,87 +1,55 @@
 import { GameState, Intent, Item } from './types';
-export type { GameState }; // GameState 타입을 다른 파일에서 import 할 수 있도록 export 합니다.
+export type { GameState };
 
 /**
- * 게임의 초기 상태를 정의합니다.
+ * 게임의 초기 상태를 정의합니다. (미술관 큐레이터 시나리오)
  */
 export const initialGameState: GameState = {
   items: {
-    // [수정] 방의 주요 가구들을 더 구체적으로 묘사
-    desk: {
-      id: 'desk',
-      name: '오래된 나무 책상',
-      description: '방 한가운데에 놓인 낡은 나무 책상입니다. 서랍이 여러 개 달려 있고, 위에는 두꺼운 책 한 권과 낡은 열쇠가 놓여 있습니다.',
-    },
-    bookshelf: {
-      id: 'bookshelf',
-      name: '벽면의 책장',
-      description: '방의 왼쪽 벽을 가득 채운 거대한 책장입니다. 오래된 책들이 빽빽하게 꽂혀 있어 손댈 엄두가 나지 않습니다.',
-    },
-    chair: {
-      id: 'chair',
-      name: '나무 의자',
-      description: '책상 앞에 놓인 평범한 나무 의자입니다. 특별한 점은 없어 보입니다.',
-    },
-
-    // [수정] 서랍을 '열린 서랍'과 '잠긴 서랍'으로 분리
-    open_drawer: {
-      id: 'open_drawer',
-      name: '열린 서랍',
-      description: '책상 오른쪽에 달린 서랍 중 하나가 이미 열려 있습니다. 안을 들여다보니 텅 비어있습니다.',
-    },
-    locked_drawer: {
-      id: 'locked_drawer',
-      name: '잠긴 서랍',
-      description: '책상 중앙에 달린 서랍입니다. 자물쇠로 단단히 잠겨 있습니다.',
-      isLocked: true,
-      contains: ['diary'] // 이 서랍 안에 '일기장'이 들어있음
-    },
-
-    // [수정] 열쇠의 위치와 설명을 그림에 맞게 변경
-    key: {
-      id: 'key',
-      name: '작은 열쇠',
-      description: '책상 위에 놓인 낡고 녹슨 작은 열쇠입니다. 어딘가의 잠금을 해제할 수 있을 것 같습니다.',
-      canBeTaken: true,
-      unlocks: 'locked_drawer', // '잠긴 서랍'을 열 수 있음
-    },
-    
-    // [추가] 바닥에 떨어진 종이를 새로운 객체로 추가
-    paper_floor: {
-        id: 'paper_floor',
-        name: '바닥의 종이',
-        description: '책상 아래, 열린 서랍 근처 바닥에 낡은 종이 한 장이 떨어져 있습니다.',
-        canBeTaken: true,
-        clue: {
-            content: '종이를 줍자, 익숙하지 않은 문자로 [ 04xx ] 라고 적혀 있습니다.',
-            isDiscovered: false,
-        }
-    },
-
-    // [수정] 책의 위치가 '잠긴 서랍 안'으로 변경됨, isHidden 추가
-    // [수정] 혼동을 줄이기 위해 '두꺼운 책'을 '오래된 일기장'으로 변경
-    diary: {
-        id: 'diary',
-        name: '오래된 일기장',
-        description: '가죽 표지로 된 낡은 일기장입니다. 표지에는 아무것도 적혀있지 않습니다.',
-        isHidden: true, // 처음에는 보이지 않음
-        clue: {
-            content: '일기장의 마지막 페이지에서 [죽음은 형태의 변화일 뿐]이라는 문장과 함께, 그 옆에 작은 글씨로 [xx51]이라고 쓰여 있는 것을 발견했습니다.',
-            isDiscovered: false,
-        }
-    },
-
-    // [유지] 최종 목표인 금고는 그대로 유지
     safe: {
       id: 'safe',
-      name: '벽에 걸린 금고',
-      description: '벽에 단단히 고정된 작은 금고입니다. 4자리 비밀번호를 입력해야 합니다.',
+      name: '벽의 디지털 금고',
+      description: '유일한 탈출구로 보이는 디지털 금고입니다. 9개의 숫자가 적힌 패트가 있고, 숫자를 하나씩 누를 때 마다 하나씩 표시 됩니다. 4자리 비밀번호를 입력해야 합니다.',
       isLocked: true,
     },
+    paintings: {
+      id: 'paintings',
+      name: '벽에 걸린 6개의 그림',
+      description: '벽에 6개의 작은 그림이 무작위로 걸려있습니다. 백조 2마리, 나비 8마리, 고양이 4마리, 토끼 1마리, 강아지 3마리, 물고기 7마리가 그려져 있습니다.',
+    },
+    desk_memo: {
+      id: 'desk_memo',
+      name: '책상 위의 메모',
+      canBeTaken: true,
+      description: '책상 위에 놓인 메모입니다.',
+      clue: {
+        content: '메모에는 "내 취향으로는... 가을 > 겨울 > 봄 > 여름 순이지. 더운 건 정말 싫거든! 🥵" 라고 적혀 있습니다.',
+        isDiscovered: false,
+      },
+    },
+    animal_songs_poem: {
+      id: 'animal_songs_poem',
+      name: '『동물들의 노래』 시집',
+      description: '책장에 꽂힌 시집입니다. 북마크가 꽂혀 있습니다.',
+      clue: {
+        content: '북마크가 꽂힌 페이지가 펼쳐져 있습니다. \n\n🦢 따뜻한 호수에서 백조들이 사랑 노래 부르고\n🦋 뜨거운 햇빛을 견디며 나비들이 나풀나풀 춤추네\n🐱 선선한 바람 부는 날 고양이들이 평화롭게 낮잠 자고\n🐰 토끼는 추워서 털옷을 꼭 껴입었나봐',
+        isDiscovered: false,
+      },
+    },
+    animal_counting_book: {
+        id: 'animal_counting_book',
+        name: '『동물 세기 놀이』 책',
+        description: '책장에 『동물 세기 놀이』라는 어린이 책이 펼쳐져 있습니다.',
+        clue: {
+            content: '펼쳐진 페이지에는 "그림 속 동물을 세어보고 순서대로 숫자를 적어보세요!" 라고 쓰여 있습니다.',
+            isDiscovered: false,
+        }
+    },
+    desk: { id: 'desk', name: '개인 책상', description: '큐레이터가 사용한 것으로 보이는 깔끔한 책상입니다.'},
+    bookshelf: { id: 'bookshelf', name: '서재 책장', description: '다양한 미술 서적과 시집이 꽂혀있는 책장입니다.'},
   },
   inventory: [],
-  // [수정] 방 전체 설명을 컨셉 아트에 맞게 업데이트
-  roomDescription: '당신은 낡은 책상과 거대한 책장이 있는 작가의 서재에 갇혔습니다. 벽에는 금고가 걸려 있고, 문은 잠겨있습니다. 탈출하려면 방 안의 단서들을 조합해 비밀번호를 찾아야 합니다.',
+  roomDescription: "당신은 미술관 큐레이터 '김예린'의 개인 서재에 갇혔습니다. 유일한 탈출구는 벽의 디지털 금고 속 열쇠뿐입니다.",
   lastMessage: null,
   isEscaped: false,
 };
@@ -121,90 +89,53 @@ export function updateState(currentState: GameState, intent: Intent): GameState 
       break;
 
     case 'take':
-      if (targetItem && targetItem.canBeTaken) {
-        if (targetItem.isTaken) {
-            newState.lastMessage = `당신은 이미 ${targetItem.name}을(를) 가지고 있습니다.`;
-        } else {
-            targetItem.isTaken = true;
-            newState.inventory.push(object);
-            newState.lastMessage = `${targetItem.name}을(를) 획득했습니다.`;
-        }
-      } else if (targetItem) {
-        newState.lastMessage = `${targetItem.name}은(는) 획득할 수 없는 아이템입니다.`;
-      } else {
-        newState.lastMessage = '무엇을 주우시겠습니까?';
-      }
-      break;
-
-    case 'open': {
-        const targetToOpen = newState.items[object];
-        if (!targetToOpen) {
-            newState.lastMessage = `${object}(을)를 찾을 수 없습니다.`;
-        } else if (targetToOpen.isLocked) {
-            newState.lastMessage = `${targetToOpen.name}은(는) 잠겨있습니다.`;
-        } else if (targetToOpen.contains && targetToOpen.contains.length > 0) {
-            const containedItemId = targetToOpen.contains[0];
-            const containedItem = newState.items[containedItemId];
-            if (containedItem && containedItem.isHidden) {
-                containedItem.isHidden = false;
-                newState.lastMessage = `${targetToOpen.name}을(를) 열자 안에서 ${containedItem.name}을(를) 발견했습니다.`;
+        if (targetItem && targetItem.canBeTaken) {
+            if (newState.inventory.includes(object)) {
+                newState.lastMessage = `당신은 이미 ${targetItem.name}을(를) 가지고 있습니다.`;
             } else {
-                 newState.lastMessage = `${targetToOpen.name} 안에는 아무것도 없습니다.`;
+                targetItem.isTaken = true;
+                newState.inventory.push(object);
+                newState.lastMessage = `${targetItem.name}을(를) 획득했습니다. 이제 인벤토리에서 확인할 수 있습니다.`;
             }
-        } else if (targetToOpen.clue) {
-            targetToOpen.clue.isDiscovered = true;
-            newState.lastMessage = `${targetToOpen.name}을(를) 열자 다음을 발견했습니다: ${targetToOpen.clue.content}`;
+        } else if (targetItem) {
+            newState.lastMessage = `${targetItem.name}은(는) 획득할 수 없는 아이템입니다.`;
         } else {
-            newState.lastMessage = `${targetToOpen.name} 안에는 아무것도 없습니다.`;
+            newState.lastMessage = '무엇을 주우시겠습니까?';
         }
         break;
-    }
-
+    
+    // 이 시나리오에서는 열거나 잠금 해제할 아이템이 금고 외에는 없습니다.
+    // open, unlock은 간소화하거나 금고에만 집중합니다.
+    case 'open':
     case 'unlock':
-        if (secondaryObject) {
-            const toolItem = newState.items[object];
-            const targetToUnlock = newState.items[secondaryObject];
-
-            if (!toolItem || !newState.inventory.includes(toolItem.id)) {
-                newState.lastMessage = `당신은 ${toolItem?.name || object}을(를) 가지고 있지 않습니다.`;
-            } else if (!targetToUnlock) {
-                newState.lastMessage = `${secondaryObject}은(는) 존재하지 않는 아이템입니다.`;
-            } else if (toolItem.unlocks === 'locked_drawer' && targetToUnlock.id === 'locked_drawer' && targetToUnlock.isLocked) {
-                targetToUnlock.isLocked = false;
-                newState.lastMessage = `딸깍, 하는 소리와 함께 ${targetToUnlock.name}의 잠금이 해제되었습니다. 이제 열 수 있을 것 같습니다.`;
-            } else if (toolItem.unlocks !== targetToUnlock.id) {
-                newState.lastMessage = `${toolItem.name}(으)로는 ${targetToUnlock.name}을(를) 열 수 없습니다.`;
-            } else {
-                newState.lastMessage = `${targetToUnlock.name}은(는) 이미 열려있습니다.`;
-            }
-        } else {
-            const targetToUnlock = newState.items['safe'];
-            if (object === '0451' && targetToUnlock.isLocked) {
+        const targetToUnlock = newState.items['safe'];
+        // 비밀번호를 직접 입력하는 경우
+        if (object === '4128') {
+             // 핵심 단서들을 모두 발견했는지 확인하여 퍼즐을 풀었다고 간주합니다.
+            if (newState.items.desk_memo.clue.isDiscovered && newState.items.animal_songs_poem.clue.isDiscovered) {
                 targetToUnlock.isLocked = false;
                 newState.isEscaped = true;
-                newState.lastMessage = '비밀번호가 맞았습니다! 금고 문이 열리면서 숨겨진 비상 열쇠를 발견했습니다. 당신은 서재를 탈출했습니다! 제작자의 이메일: skaparty@gmail.com 커피챗 환영.';
-            } else if (targetToUnlock.isLocked) {
-                newState.lastMessage = '비밀번호가 틀렸습니다.';
+                newState.lastMessage = '비밀번호가 맞았습니다! 금고 문이 열리면서 숨겨진 비상 열쇠를 발견했습니다. 당신은 서재를 탈출했습니다!\n\n개발자 연락처: skaparty@gmail.com 커피챗 환영';
             } else {
-                newState.lastMessage = '금고는 이미 열려있습니다.';
+                newState.lastMessage = '올바른 비밀번호인 것 같지만, 아직 풀리지 않은 수수께끼가 있습니다. 방을 좀 더 둘러보세요.';
             }
+        } else if (targetToUnlock.isLocked) {
+            newState.lastMessage = '비밀번호가 틀렸습니다.';
+        } else {
+            newState.lastMessage = '금고는 이미 열려있습니다.';
         }
         break;
 
     case 'hint': {
-        const { items, inventory } = newState;
-        if (items.locked_drawer.isLocked && !inventory.includes('key')) {
-            newState.lastMessage = "힌트: 책상 위에 열쇠가 있습니다. 저 열쇠는 어디에 쓰는 걸까요?";
-        } else if (items.locked_drawer.isLocked && inventory.includes('key')) {
-            newState.lastMessage = "힌트: 가지고 있는 열쇠로 잠긴 서랍을 열 수 있을 것 같습니다.";
-        } else if (!items.locked_drawer.isLocked && items.diary.isHidden) {
-            newState.lastMessage = "힌트: 잠긴 서랍이 열렸습니다. 안을 자세히 살펴보세요 ('잠긴 서랍 열어').";
-        } else if (!items.diary.isHidden && !items.diary.clue.isDiscovered) {
-             newState.lastMessage = "힌트: 서랍에서 일기장을 발견했습니다. 안을 자세히 살펴보는 건 어떨까요? ('일기장 봐').";
-        } else if (items.safe.isLocked && items.diary.clue.isDiscovered) {
-            newState.lastMessage = "힌트: 일기장에서 발견한 4자리 숫자는 어디에 쓰는 걸까요? 비밀번호를 입력할 만한 장치가 보입니다.";
+        const { items } = newState;
+        if (!items.paintings.clue?.isDiscovered) { // 편의상 description 확인을 isDiscovered로 간주
+             newState.lastMessage = "힌트: 벽에 걸린 6개의 그림이 눈에 띕니다. 자세히 살펴보는 것부터 시작하는 게 좋겠습니다. ('그림 봐')";
+        } else if (!items.desk_memo.clue?.isDiscovered) {
+            newState.lastMessage = "힌트: 그림 속 동물들의 순서에는 규칙이 있는 것 같습니다. 책상 위에 놓인 메모에 중요한 단서가 있을지도 모릅니다. ('메모 봐')";
+        } else if (!items.animal_songs_poem.clue?.isDiscovered) {
+            newState.lastMessage = "힌트: 메모에서 계절의 순서를 알아냈습니다. 이제 어떤 동물이 어떤 계절을 상징하는지 알아야 합니다. 책장에 꽂힌 시집을 확인해보세요. ('시집 봐')";
         } else {
-            newState.lastMessage = "힌트: 모든 단서를 찾은 것 같습니다. 이제 탈출구는 하나 뿐입니다!";
+            newState.lastMessage = "힌트: 모든 단서를 찾았습니다! 메모의 계절 순서대로, 시집에 나온 동물의 숫자를 조합하면 비밀번호가 될 것입니다.";
         }
         break;
     }

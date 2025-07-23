@@ -34,7 +34,7 @@ export const initialGameState: GameState = {
       name: '잠긴 서랍',
       description: '책상 중앙에 달린 서랍입니다. 자물쇠로 단단히 잠겨 있습니다.',
       isLocked: true,
-      contains: ['book'] // 이 서랍 안에 '책'이 들어있음
+      contains: ['diary'] // 이 서랍 안에 '일기장'이 들어있음
     },
 
     // [수정] 열쇠의 위치와 설명을 그림에 맞게 변경
@@ -59,13 +59,14 @@ export const initialGameState: GameState = {
     },
 
     // [수정] 책의 위치가 '잠긴 서랍 안'으로 변경됨, isHidden 추가
-    book: {
-        id: 'book',
-        name: '두꺼운 책',
-        description: '표지에 [헤르만 헤세]라고 적힌 두꺼운 책입니다. 잠긴 서랍 안에서 발견했습니다.',
+    // [수정] 혼동을 줄이기 위해 '두꺼운 책'을 '오래된 일기장'으로 변경
+    diary: {
+        id: 'diary',
+        name: '오래된 일기장',
+        description: '가죽 표지로 된 낡은 일기장입니다. 표지에는 아무것도 적혀있지 않습니다.',
         isHidden: true, // 처음에는 보이지 않음
         clue: {
-            content: '책 안을 살펴보자, [죽음은 형태의 변화일 뿐]이라는 문장이 밑줄 그어져 있고, 그 옆에 작은 글씨로 [0451]이라고 쓰여 있습니다.',
+            content: '일기장의 마지막 페이지에서 [죽음은 형태의 변화일 뿐]이라는 문장과 함께, 그 옆에 작은 글씨로 [0451]이라고 쓰여 있는 것을 발견했습니다.',
             isDiscovered: false,
         }
     },
@@ -168,7 +169,7 @@ export function updateState(currentState: GameState, intent: Intent): GameState 
                 newState.lastMessage = `당신은 ${toolItem?.name || object}을(를) 가지고 있지 않습니다.`;
             } else if (!targetToUnlock) {
                 newState.lastMessage = `${secondaryObject}은(는) 존재하지 않는 아이템입니다.`;
-            } else if (toolItem.unlocks === targetToUnlock.id && targetToUnlock.isLocked) {
+            } else if (toolItem.unlocks === 'locked_drawer' && targetToUnlock.id === 'locked_drawer' && targetToUnlock.isLocked) {
                 targetToUnlock.isLocked = false;
                 newState.lastMessage = `딸깍, 하는 소리와 함께 ${targetToUnlock.name}의 잠금이 해제되었습니다. 이제 열 수 있을 것 같습니다.`;
             } else if (toolItem.unlocks !== targetToUnlock.id) {
@@ -196,12 +197,12 @@ export function updateState(currentState: GameState, intent: Intent): GameState 
             newState.lastMessage = "힌트: 책상 위에 열쇠가 있습니다. 저 열쇠는 어디에 쓰는 걸까요?";
         } else if (items.locked_drawer.isLocked && inventory.includes('key')) {
             newState.lastMessage = "힌트: 가지고 있는 열쇠로 잠긴 서랍을 열 수 있을 것 같습니다.";
-        } else if (!items.locked_drawer.isLocked && items.book.isHidden) {
+        } else if (!items.locked_drawer.isLocked && items.diary.isHidden) {
             newState.lastMessage = "힌트: 잠긴 서랍이 열렸습니다. 안을 자세히 살펴보세요 ('잠긴 서랍 열어').";
-        } else if (!items.book.isHidden && !items.book.clue.isDiscovered) {
-             newState.lastMessage = "힌트: 서랍에서 책을 발견했습니다. 책 안에 중요한 단서가 있을지도 모릅니다 ('책 봐').";
-        } else if (items.safe.isLocked && items.book.clue.isDiscovered) {
-            newState.lastMessage = "힌트: 책에서 발견한 4자리 숫자는 어디에 쓰는 걸까요? 비밀번호를 입력할 만한 장치가 보입니다.";
+        } else if (!items.diary.isHidden && !items.diary.clue.isDiscovered) {
+             newState.lastMessage = "힌트: 서랍에서 일기장을 발견했습니다. 안을 자세히 살펴보는 건 어떨까요? ('일기장 봐').";
+        } else if (items.safe.isLocked && items.diary.clue.isDiscovered) {
+            newState.lastMessage = "힌트: 일기장에서 발견한 4자리 숫자는 어디에 쓰는 걸까요? 비밀번호를 입력할 만한 장치가 보입니다.";
         } else {
             newState.lastMessage = "힌트: 모든 단서를 찾은 것 같습니다. 이제 탈출구는 하나 뿐입니다!";
         }

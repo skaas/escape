@@ -59,7 +59,13 @@ export default function Home() {
       const { newState, narrative } = await response.json() as ApiResponse;
       
       setGameState(newState);
-      setMessages(prev => [...prev, { role: 'assistant', content: narrative }]);
+
+      // 게임이 종료되었고(isEscaped) 마지막 메시지가 있다면, LLM의 서술 대신 그 메시지를 사용합니다.
+      const assistantResponse = newState.isEscaped && newState.lastMessage
+        ? newState.lastMessage
+        : narrative;
+
+      setMessages(prev => [...prev, { role: 'assistant', content: assistantResponse }]);
 
     } catch (error: unknown) { // 'any' 대신 'unknown' 사용
       if (error instanceof Error) {

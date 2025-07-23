@@ -18,7 +18,7 @@ function signState(state: GameState): string {
   // 객체의 키 순서가 달라져도 동일한 문자열이 생성되도록 정렬합니다.
   const stringifiedState = JSON.stringify(Object.keys(state).sort().reduce(
     (obj: { [key: string]: any }, key) => { 
-      obj[key] = (state as any)[key]; 
+      obj[key] = state[key as keyof GameState]; 
       return obj;
     }, 
     {}

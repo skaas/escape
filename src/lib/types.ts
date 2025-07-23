@@ -16,6 +16,8 @@ export interface Intent {
 export interface Item {
   id: string;
   name: string;
+  aliases?: string[]; // 아이템의 별칭 (동의어) 목록
+  concept?: string; // 아이템의 '핵심 개념' (의미 검색용)
   description: string;
   isLocked?: boolean;
   isTaken?: boolean;

@@ -9,17 +9,23 @@ export const initialGameState: GameState = {
     safe: {
       id: 'safe',
       name: '벽의 디지털 금고',
+      aliases: ['금고', '디지털 금고', 'safe'],
+      concept: '비밀번호를 입력하여 여는 잠금 장치',
       description: '유일한 탈출구로 보이는 디지털 금고입니다. 9개의 숫자가 적힌 패트가 있고, 숫자를 하나씩 누를 때 마다 하나씩 표시 됩니다. 4자리 비밀번호를 입력해야 합니다.',
       isLocked: true,
     },
     paintings: {
       id: 'paintings',
       name: '벽에 걸린 6개의 그림',
+      aliases: ['그림', '그림들', '여섯개의 그림', 'paintings'],
+      concept: '벽에 걸린 여러 개의 미술 작품',
       description: '벽에 6개의 작은 그림이 무작위로 걸려있습니다. 백조 2마리, 나비 8마리, 고양이 4마리, 토끼 1마리, 강아지 3마리, 물고기 7마리가 그려져 있습니다.',
     },
     desk_memo: {
       id: 'desk_memo',
       name: '책상 위의 메모',
+      aliases: ['메모', '쪽지', 'memo'],
+      concept: '무언가 적혀있는 종이 조각',
       canBeTaken: true,
       description: '책상 위에 놓인 메모입니다.',
       clue: {
@@ -30,6 +36,8 @@ export const initialGameState: GameState = {
     animal_songs_poem: {
       id: 'animal_songs_poem',
       name: '『동물들의 노래』 시집',
+      aliases: ['시집', '동물들의 노래', '책'],
+      concept: '동물에 대한 시가 담긴 책',
       description: '책장에 꽂힌 시집입니다. 북마크가 꽂혀 있습니다.',
       clue: {
         content: '북마크가 꽂힌 페이지가 펼쳐져 있습니다. \n\n🦢 따뜻한 호수에서 백조들이 사랑 노래 부르고\n🦋 뜨거운 햇빛을 견디며 나비들이 나풀나풀 춤추네\n🐱 선선한 바람 부는 날 고양이들이 평화롭게 낮잠 자고\n🐰 토끼는 추워서 털옷을 꼭 껴입었나봐',
@@ -39,14 +47,16 @@ export const initialGameState: GameState = {
     animal_counting_book: {
         id: 'animal_counting_book',
         name: '『동물 세기 놀이』 책',
+        aliases: ['동물책', '세기놀이책', '어린이책'],
+        concept: '숫자 세기에 대한 어린이용 책',
         description: '책장에 『동물 세기 놀이』라는 어린이 책이 펼쳐져 있습니다.',
         clue: {
             content: '펼쳐진 페이지에는 "그림 속 동물을 세어보고 순서대로 숫자를 적어보세요!" 라고 쓰여 있습니다.',
             isDiscovered: false,
         }
     },
-    desk: { id: 'desk', name: '개인 책상', description: '큐레이터가 사용한 것으로 보이는 깔끔한 책상입니다.'},
-    bookshelf: { id: 'bookshelf', name: '서재 책장', description: '다양한 미술 서적과 시집이 꽂혀있는 책장입니다.'},
+    desk: { id: 'desk', name: '개인 책상', aliases: ['책상', 'desk'], concept: '글을 쓰거나 작업하는 가구', description: '큐레이터가 사용한 것으로 보이는 깔끔한 책상입니다.'},
+    bookshelf: { id: 'bookshelf', name: '서재 책장', aliases: ['책장', 'bookshelf'], concept: '책을 보관하는 선반', description: '다양한 미술 서적과 시집이 꽂혀있는 책장입니다.'},
   },
   inventory: [],
   roomDescription: "당신은 미술관 큐레이터 '김예린'의 개인 서재에 갇혔습니다. 유일한 탈출구는 벽의 디지털 금고 속 열쇠뿐입니다.",
@@ -62,7 +72,7 @@ export const initialGameState: GameState = {
  */
 export function updateState(currentState: GameState, intent: Intent): GameState {
   const newState = JSON.parse(JSON.stringify(currentState));
-  const { action, object, secondaryObject } = intent;
+  const { action, object } = intent;
   const targetItem = newState.items[object];
   
   newState.lastMessage = null;

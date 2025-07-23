@@ -11,13 +11,15 @@ export interface Item {
   name: string;
   description: string;
   isLocked?: boolean;
-  canBeTaken?: boolean;
   isTaken?: boolean;
+  isHidden?: boolean; // 아이템이 숨겨져 있는지 여부
+  canBeTaken?: boolean;
+  unlocks?: string;
+  contains?: string[]; // 아이템이 다른 아이템을 포함하는지 여부
   clue?: {
     content: string;
     isDiscovered: boolean;
   };
-  unlocks?: string;
 }
 
 export interface GameState {

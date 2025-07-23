@@ -52,6 +52,9 @@ export const initialGameState: GameState = {
   roomDescription: "당신은 미술관 큐레이터 '김예린'의 개인 서재에 갇혔습니다. 유일한 탈출구는 벽의 디지털 금고 속 열쇠뿐입니다.",
   lastMessage: null,
   isEscaped: false,
+  player: {
+    abilities: ['관찰', '추론'],
+  },
 };
 
 /**

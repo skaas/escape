@@ -30,11 +30,12 @@ export interface Item {
 }
 
 export interface GameState {
-  items: {
-    [key: string]: Item;
-  };
+  items: { [key: string]: Item };
   inventory: string[];
   roomDescription: string;
   lastMessage: string | null;
   isEscaped: boolean;
+  player: {
+    abilities: string[];
+  };
 } 

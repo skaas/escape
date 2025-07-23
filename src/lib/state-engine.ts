@@ -103,6 +103,16 @@ export function updateState(currentState: GameState, intent: Intent): GameState 
             newState.lastMessage = '무엇을 주우시겠습니까?';
         }
         break;
+
+    case 'inventory': {
+        if (newState.inventory.length === 0) {
+            newState.lastMessage = '주머니는 텅 비어있다.';
+        } else {
+            const itemNames = newState.inventory.map((id: string) => newState.items[id].name);
+            newState.lastMessage = `주머니에는 ${itemNames.join(', ')}(이)가 들어있다.`;
+        }
+        break;
+    }
     
     // 이 시나리오에서는 열거나 잠금 해제할 아이템이 금고 외에는 없습니다.
     // open, unlock은 간소화하거나 금고에만 집중합니다.

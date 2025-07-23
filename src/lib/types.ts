@@ -1,4 +1,11 @@
-export type Action = 'look' | 'take' | 'open' | 'use' | 'unlock' | 'enter' | 'hint';
+export type Action =
+  | 'look'
+  | 'take'
+  | 'open'
+  | 'unlock'
+  | 'hint'
+  | 'inventory'
+  | 'unknown';
 
 export interface Intent {
   action: Action;

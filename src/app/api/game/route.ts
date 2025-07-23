@@ -15,16 +15,12 @@ const gameStateSecret = process.env.GAME_STATE_SECRET || 'a-secure-secret-for-de
 
 function signState(state: GameState): string {
   const hmac = createHmac('sha256', gameStateSecret);
-  // 객체의 키 순서가 달라져도 동일한 문자열이 생성되도록 정렬합니다.
-  const stringifiedState = JSON.stringify(
-    (Object.keys(state) as Array<keyof GameState>).sort().reduce(
-      (res, key) => {
-        res[key] = state[key];
-        return res;
-      },
-      {} as Record<string, any>
-    )
-  );
+
+  // 객체의 키를 정렬하여 일관된 문자열을 생성합니다.
+  const sortedEntries = Object.entries(state).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+  const sortedState = Object.fromEntries(sortedEntries);
+  
+  const stringifiedState = JSON.stringify(sortedState);
   hmac.update(stringifiedState);
   return hmac.digest('hex');
 }

@@ -68,10 +68,12 @@ async function recognizeIntentWithLLM(openai: OpenAI, userInput: string): Promis
         - "open": 열기 (주로 금고)
         - "unlock": 잠금 해제하기 (주로 비밀번호 입력)
         - "hint": 힌트 요청하기
+        - "unknown": 사용자의 입력이 게임 내 행동이나 질문과 명확히 관련 없는 경우
 
         OBJECT_ID는 게임에 존재하는 사물의 ID여야 합니다. 
         현재 게임에 존재하는 주요 사물 ID: safe, paintings, desk_memo, animal_songs_poem, animal_counting_book, desk, bookshelf, room.
         사용자가 '그림'을 언급하면 "paintings"로, '메모'는 "desk_memo"로, '시집'은 "animal_songs_poem"으로, '동물 책'은 "animal_counting_book"으로 연결하는 등 유연하게 판단하세요.
+        사용자의 입력이 게임과 관련 없는 농담, 메타 발언, 역할극 이탈 등일 경우, action을 "unknown"으로 설정하세요.
         사용자가 특정 사물에 대해 질문하는 경우(예: "금고는 어떻게 생겼어?"), action을 "look"으로, object를 해당 사물 ID로 설정하세요.
         사용자가 '방'이나 '주변'을 본다고 하면 object는 "room"으로 설정하세요.
         4자리 숫자가 포함되면 비밀번호 입력으로 간주하고 action을 "unlock"으로, object를 해당 숫자로 설정하세요.

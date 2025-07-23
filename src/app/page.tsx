@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GameState } from '../lib/types';
 import { initialGameState } from '../lib/state-engine';
 
@@ -17,13 +17,16 @@ export default function Home() {
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // 운영 환경에서는 API 키가 없어도 입력을 활성화하고,
   // 개발 환경에서는 API 키가 입력되어야만 활성화합니다.
-  const isInputDisabled = isLoading || (isDevelopment && !apiKey);
+  // 게임이 끝나도 (isEscaped) 입력을 비활성화합니다.
+  const isInputDisabled = isLoading || (isDevelopment && !apiKey) || gameState.isEscaped;
 
   useEffect(() => {
     setMessages([{ role: 'assistant', content: initialGameState.roomDescription }]);
+    inputRef.current?.focus();
   }, []);
 
   const handleSendMessage = async () => {
@@ -66,6 +69,7 @@ export default function Home() {
       }
     } finally {
       setIsLoading(false);
+      inputRef.current?.focus(); // 응답 후 입력창에 다시 포커스
     }
   };
 
@@ -109,6 +113,7 @@ export default function Home() {
         <footer className="p-4 bg-gray-800 border-t border-gray-700">
           <div className="flex">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}

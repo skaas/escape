@@ -53,7 +53,7 @@ export const initialGameState: GameState = {
         description: '책상 아래, 열린 서랍 근처 바닥에 낡은 종이 한 장이 떨어져 있습니다.',
         canBeTaken: true,
         clue: {
-            content: '종이를 줍자, 익숙하지 않은 문자로 [ जन्मतिथ: १९०८ ] 라고 적혀 있습니다.',
+            content: '종이를 줍자, 익숙하지 않은 문자로 [ 04xx ] 라고 적혀 있습니다.',
             isDiscovered: false,
         }
     },
@@ -66,7 +66,7 @@ export const initialGameState: GameState = {
         description: '가죽 표지로 된 낡은 일기장입니다. 표지에는 아무것도 적혀있지 않습니다.',
         isHidden: true, // 처음에는 보이지 않음
         clue: {
-            content: '일기장의 마지막 페이지에서 [죽음은 형태의 변화일 뿐]이라는 문장과 함께, 그 옆에 작은 글씨로 [0451]이라고 쓰여 있는 것을 발견했습니다.',
+            content: '일기장의 마지막 페이지에서 [죽음은 형태의 변화일 뿐]이라는 문장과 함께, 그 옆에 작은 글씨로 [xx51]이라고 쓰여 있는 것을 발견했습니다.',
             isDiscovered: false,
         }
     },

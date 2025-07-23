@@ -103,8 +103,14 @@ async function recognizeIntentWithLLM(openai: OpenAI, userInput: string): Promis
  * 현재 게임 상태와 사용자 입력을 바탕으로 다음 내러티브를 생성합니다.
  */
 async function generateNarrativeWithLLM(openai: OpenAI, state: GameState, userInput: string): Promise<string> {
+    const visibleItems = Object.values(state.items)
+        .filter(item => !item.isTaken && !item.isHidden)
+        .map(item => item.name)
+        .join(', ');
+
     const stateSummary = `
         현재 방: ${state.roomDescription}
+        방에 보이는 것들: ${visibleItems || '특별한 것이 보이지 않는다.'}
         보유 아이템: ${state.inventory.length > 0 ? state.inventory.map(id => state.items[id].name).join(', ') : '없음'}
         마지막 행동 결과: ${state.lastMessage || '없음'}
     `;
@@ -116,6 +122,7 @@ async function generateNarrativeWithLLM(openai: OpenAI, state: GameState, userIn
         
         규칙:
         - isDiscovered: false 인 단서는 절대 묘사하면 안 됩니다.
+        - **주어진 게임 상태에 없는 새로운 아이템, 장소, 인물, 사건을 절대 만들지 마세요. 묘사는 반드시 제공된 '게임 현재 상태' 정보에만 근거해야 합니다.**
         - JSON 형식이나 코드, 리스트를 절대 사용하지 마세요. 오직 소설처럼 서술하세요.
         - 플레이어에게 직접적으로 말을 걸지 말고, 3인칭 관찰자 시점으로 상황을 묘사하세요.
     `;
